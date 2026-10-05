@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpeedPulse - Internet Speed Test</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow top-left"></div>
+  <div class="background-glow bottom-right"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="logo-title">SpeedPulse</h1>
+          <span class="logo-subtitle">Golang Ultra-Low Latency Engine</span>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <span class="status-indicator"></span>
+        <span id="server-status-text">Server Siap</span>
+      </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard-grid">
+      <!-- Left / Top: Speedometer Gauge -->
+      <section class="gauge-card glass-panel">
+        <div class="phase-badge" id="test-phase-badge">Siap Menguji</div>
+        
+        <div class="gauge-wrapper">
+          <canvas id="gauge-canvas" width="380" height="260"></canvas>
+          <div class="gauge-center-content">
+            <div class="speed-value" id="live-speed-value">0.0</div>
+            <div class="speed-unit" id="live-speed-unit">Mbps</div>
+          </div>
+        </div>
+
+        <div class="action-container">
+          <button id="start-btn" class="glow-button">
+            <span class="btn-text">MULAI TES</span>
+            <span class="btn-ripple"></span>
+          </button>
+        </div>
+
+        <!-- Real-time Sparkline Graph -->
+        <div class="chart-wrapper">
+          <div class="chart-header">
+            <span>Grafik Kecepatan Real-time</span>
+            <span id="chart-peak-speed">Puncak: 0 Mbps</span>
+          </div>
+          <canvas id="chart-canvas" width="460" height="85"></canvas>
+        </div>
+      </section>
+
+      <!-- Right / Bottom: Results & System Info -->
+      <section class="metrics-panel">
+        <div class="metrics-grid">
+          <!-- Ping Card -->
+          <div class="metric-card glass-panel" id="card-ping">
+            <div class="metric-header">
+              <span class="metric-icon ping-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </span>
+              <span class="metric-label">Ping (Latency)</span>
+            </div>
+            <div class="metric-body">
+              <span class="metric-val" id="metric-ping">--</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div class="metric-progress-bar">
+              <div class="progress-fill" id="progress-ping"></div>
+            </div>
+          </div>
+
+          <!-- Jitter Card -->
+          <div class="metric-card glass-panel" id="card-jitter">
+            <div class="metric-header">
+              <span class="metric-icon jitter-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 12h5l3-9 4 18 3-9h5"></path>
+                </svg>
+              </span>
+              <span class="metric-label">Jitter</span>
+            </div>
+            <div class="metric-body">
+              <span class="metric-val" id="metric-jitter">--</span>
+              <span class="metric-unit">ms</span>
+            </div>
+            <div class="metric-progress-bar">
+              <div class="progress-fill" id="progress-jitter"></div>
+            </div>
+          </div>
+
+          <!-- Download Card -->
+          <div class="metric-card glass-panel" id="card-download">
+            <div class="metric-header">
+              <span class="metric-icon download-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </span>
+              <span class="metric-label">Download</span>
+            </div>
+            <div class="metric-body">
+              <span class="metric-val" id="metric-download">--</span>
+              <span class="metric-unit">Mbps</span>
+            </div>
+            <div class="metric-progress-bar">
+              <div class="progress-fill" id="progress-download"></div>
+            </div>
+          </div>
+
+          <!-- Upload Card -->
+          <div class="metric-card glass-panel" id="card-upload">
+            <div class="metric-header">
+              <span class="metric-icon upload-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </span>
+              <span class="metric-label">Upload</span>
+            </div>
+            <div class="metric-body">
+              <span class="metric-val" id="metric-upload">--</span>
+              <span class="metric-unit">Mbps</span>
+            </div>
+            <div class="metric-progress-bar">
+              <div class="progress-fill" id="progress-upload"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connection & Host Info -->
+        <div class="info-card glass-panel">
+          <div class="info-item">
+            <span class="info-label">Alamat IP Klien:</span>
+            <span class="info-value font-mono" id="client-ip">Memuat...</span>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-item">
+            <span class="info-label">Server Host:</span>
+            <span class="info-value font-mono" id="server-host">Memuat...</span>
+          </div>
+          <div class="info-divider"></div>
+          <div class="info-item">
+            <span class="info-label">Koneksi Paralel:</span>
+            <span class="info-value" id="stream-count">4 Streams (Optimasi Saturasi)</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <span>Ditenagai oleh <strong>Golang Zero-Copy Streaming Engine</strong></span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
